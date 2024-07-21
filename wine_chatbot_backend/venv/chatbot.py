@@ -25,7 +25,7 @@ def get_embedding_functions():
 # Function to add documents to ChromaDB
 def add_to_chroma(chunks):
     db = Chroma(
-        persist_directory="C:/Users/shrey/CS-ChatBot/ChromaDB",
+        persist_directory="Path/to/ChromaDB",
         embedding_function=get_embedding_functions()
     )
     last_page = 0
@@ -54,7 +54,7 @@ def add_to_chroma(chunks):
 # Function to retrieve the Chroma database instance
 def get_chroma():
     db = Chroma(
-        persist_directory="C:/Users/shrey/CS-ChatBot/ChromaDB",
+        persist_directory="Path/to/ChromaDB",
         embedding_function=get_embedding_functions()
     )
     return db
@@ -71,7 +71,7 @@ def split_documents(documents):
 
 # Function to load documents from PDF directory
 def load_documents():
-    document_loader = PyPDFDirectoryLoader("C:/Users/shrey/CS-ChatBot/PDF")
+    document_loader = PyPDFDirectoryLoader("Path/to/PDF")
     return document_loader.load()
 
 # Function to retrieve context for a given query
@@ -84,7 +84,7 @@ def get_context(query):
 
 # Function to get response from Cohere based on the context and query
 def get_response_stream(query, context=""):
-    co = cohere.Client("YOUR_API_KEY")
+    co = cohere.Client("0ioIA8dB9N4B0pwUaCABEW9udSz9ruX1bt9n7zUw")
     context_text = get_context(query)
 
     if not context_text:
