@@ -86,23 +86,24 @@
             border-radius: 20px;
             cursor: pointer;
         }
+
         @keyframes blink {
             0% { opacity: .2; }
             20% { opacity: 1; }
             100% { opacity: .2; }
         }
-        
+
         .loading span {
             animation-name: blink;
             animation-duration: 1.4s;
             animation-iteration-count: infinite;
             animation-fill-mode: both;
         }
-        
+
         .loading span:nth-child(2) {
             animation-delay: .2s;
         }
-        
+
         .loading span:nth-child(3) {
             animation-delay: .4s;
         }
@@ -124,36 +125,26 @@
         const chatContainer = document.getElementById('chat-container');
         const userInput = document.getElementById('user-input');
         let chatHistory = [];
-    
+
         function sendMessage() {
-            const message = userInput.value;
-            if (message.trim() === '') return;
-        
-            // Add user message to chat
+            const message = userInput.value.trim();
+            if (!message) return;
+
             addMessageToChat('user', message);
-        
-            // Clear input
             userInput.value = '';
-        
-            // Show loading indicator
             const loadingBubble = addLoadingIndicator();
-        
-            // Send message to backend
+
             fetch('http://127.0.0.1:5000/chat', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ query: message }),
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ query: message })
             })
             .then(response => {
-                // Remove loading indicator
                 loadingBubble.remove();
-        
                 const reader = response.body.getReader();
                 const decoder = new TextDecoder();
                 let buffer = '';
-        
+
                 function readChunk() {
                     return reader.read().then(({ done, value }) => {
                         if (done) {
@@ -162,44 +153,36 @@
                             }
                             return;
                         }
-                        
+
                         buffer += decoder.decode(value, { stream: true });
-                        
-                        // Split buffer by newline and process complete messages
                         const messages = buffer.split('\n');
-                        buffer = messages.pop(); // Keep the last incomplete message in the buffer
-                        
+                        buffer = messages.pop();
                         messages.forEach(msg => {
                             if (msg) addMessageToChat('bot', msg);
                         });
-                        
+
                         return readChunk();
                     });
                 }
-        
+
                 return readChunk();
             })
             .catch(error => {
                 console.error('Error:', error);
-                // Remove loading indicator
                 loadingBubble.remove();
                 addMessageToChat('bot', "Sorry, there was an error processing your request.");
             });
-        }    
-    
+        }
+
         function addMessageToChat(sender, text) {
             const bubble = document.createElement('div');
             bubble.className = `chat-bubble ${sender}`;
             bubble.innerText = text;
             chatContainer.appendChild(bubble);
-    
-            // Add to history
             chatHistory.push({ sender, text });
-    
-            // Scroll to bottom
             chatContainer.scrollTop = chatContainer.scrollHeight;
         }
-    
+
         function addLoadingIndicator() {
             const bubble = document.createElement('div');
             bubble.className = 'chat-bubble bot loading';
@@ -208,37 +191,15 @@
             chatContainer.scrollTop = chatContainer.scrollHeight;
             return bubble;
         }
-    
-        function addStreamingMessage(sender, text) {
-            const bubble = document.createElement('div');
-            bubble.className = `chat-bubble ${sender}`;
-            chatContainer.appendChild(bubble);
-    
-            let i = 0;
-            function typeWriter() {
-                if (i < text.length) {
-                    bubble.innerHTML += text.charAt(i);
-                    i++;
-                    chatContainer.scrollTop = chatContainer.scrollHeight;
-                    setTimeout(typeWriter, 20); // Adjust the timeout to control typing speed
-                } else {
-                    // Add to history once complete
-                    chatHistory.push({ sender, text });
-                }
-            }
-            typeWriter();
-        }
-    
-        // Allow pressing Enter to send message
+
         userInput.addEventListener('keypress', function (e) {
             if (e.key === 'Enter') {
                 sendMessage();
             }
         });
-    
-        // Optional: Add a welcome message when the page loads
+
         window.onload = function() {
-            addStreamingMessage('bot', "Welcome to the Jessup Cellars Chatbot! How can I assist you today?");
+            addMessageToChat('bot', "Welcome to the Jessup Cellars Chatbot! How can I assist you today?");
         };
     </script>
 </body>
