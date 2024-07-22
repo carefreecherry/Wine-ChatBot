@@ -84,7 +84,7 @@ def get_context(query):
 
 # Function to get response from Cohere based on the context and query
 def get_response_stream(query, context=""):
-    co = cohere.Client("0ioIA8dB9N4B0pwUaCABEW9udSz9ruX1bt9n7zUw")
+    co = cohere.Client("YOUR_API_KEY")
     context_text = get_context(query)
 
     if not context_text:
